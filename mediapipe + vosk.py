@@ -8,8 +8,8 @@ from vosk import Model, KaldiRecognizer
 from pynput.mouse import Button
 from pynput.mouse import  Controller as mouse_controller
 from pynput.keyboard import Controller as keyboard_controller
-from threading import Thread
-#import pyautogui as mouse
+from threading import Thread, Event
+from queue import Queue
 
 #model = Model(r"C:\Users\gusta\Documents\vosk\vosk-model-small-en-us-0.15")
 
@@ -27,6 +27,10 @@ mp_drawing_styles = mp.solutions.drawing_styles
 mp_face_mesh = mp.solutions.face_mesh
 
 #inicialização de variaveis
+# create an event
+record_check = Event() # Evento para checar se a thread principal deve começar a gravar os clicks (True = gravar; False = nao gravar )
+send_check = Event() # Evento para cheacar se a lista de comandos deve ser enviada 
+clicks = []
 limite_pisc = 0.5 #tempo em segundos para considerr uma piscada como voluntária
 pisc_controle_d = False
 pisc_controle_e = False
@@ -38,6 +42,7 @@ vetor_olho_e =[] # vetor para armazenar a distância entre os pontos do olho esq
 #iniciaçização de funções
 
 def vosk():
+    keywords = []
     comando = False
     while True:
         data = stream.read(4096)
@@ -52,6 +57,9 @@ def vosk():
                 else:
                     if 'keyboard' in text:
                         comando = True
+                    for keyword in keywords:
+                       if keyword in text:
+                          print("COMANDO ", keyword," ACIONADO")
 
 
 def pontos(results):
