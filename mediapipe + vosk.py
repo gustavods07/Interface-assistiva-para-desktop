@@ -2,7 +2,6 @@ import time
 import cv2
 import numpy as np
 import mediapipe as mp
-import statistics
 import pyaudio
 from vosk import Model, KaldiRecognizer
 from pynput.mouse import Button
@@ -11,9 +10,8 @@ from pynput.keyboard import Controller as keyboard_controller
 from threading import Thread, Event
 from queue import Queue
 
-#model = Model(r"C:\Users\gusta\Documents\vosk\vosk-model-small-en-us-0.15")
-
-#recognizer = KaldiRecognizer(model, 16000)
+model = Model(r"C:\Users\gusta\Documents\vosk\vosk-model-small-en-us-0.15")
+recognizer = KaldiRecognizer(model, 16000)
 
 mic = pyaudio.PyAudio()
 stream = mic.open(format=pyaudio.paInt16,channels=1,rate=16000,input=True,frames_per_buffer=8192)
@@ -30,7 +28,6 @@ mp_face_mesh = mp.solutions.face_mesh
 # create an event
 record_check = Event() # Evento para checar se a thread principal deve começar a gravar os clicks (True = gravar; False = nao gravar )
 send_check = Event() # Evento para cheacar se a lista de comandos deve ser enviada 
-clicks = []
 limite_pisc = 0.5 #tempo em segundos para considerr uma piscada como voluntária
 pisc_controle_d = False
 pisc_controle_e = False
@@ -41,8 +38,8 @@ vetor_olho_d = [] # vetor para armazenar a distância entre os pontos do olho di
 vetor_olho_e =[] # vetor para armazenar a distância entre os pontos do olho esquerdo para gerar threshold de piscadas
 #iniciaçização de funções
 
+
 def vosk():
-    keywords = []
     comando = False
     while True:
         data = stream.read(4096)
@@ -57,9 +54,12 @@ def vosk():
                 else:
                     if 'keyboard' in text:
                         comando = True
-                    for keyword in keywords:
-                       if keyword in text:
-                          print("COMANDO ", keyword," ACIONADO")
+                    if(text[14:19]=='start'):
+                       #iniciar gravação de novo comando
+                       record_check.set()
+                    if(text[14:18]=='stop'):
+                       #iniciar gravação de novo comando
+                       send_check.set()
 
 
 def pontos(results):
@@ -99,8 +99,8 @@ def pontos(results):
 
   return db, dd, de
 
-#thread = Thread(target=vosk)
-#thread.start()
+thread = Thread(target=vosk)
+thread.start()
 
 # For webcam input:
 drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
@@ -128,6 +128,18 @@ with mp_face_mesh.FaceMesh(
     image.flags.writeable = True
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     if results.multi_face_landmarks:
+        
+
+        if record_check.is_set():
+           print("GRAVAR")
+           #começar a gravar os botoes
+           record_check.clear()
+        if send_check.is_set():
+           print("SALVAR")
+           #enviar dados gravados
+           send_check.clear()
+
+           
         pos = results.multi_face_landmarks[0].landmark[4]
         db, dd, de = pontos(results)
 
@@ -212,7 +224,7 @@ with mp_face_mesh.FaceMesh(
            #print("FIM")
            
         if (fim_e-inicio_e)>limite_pisc and (pisc_controle_e == True):
-          print("PISCOU")
+          #print("PISCOU")
           #mouse.press(Button.left)
           #mouse.release(Button.left)
           pisc_controle_e = False
