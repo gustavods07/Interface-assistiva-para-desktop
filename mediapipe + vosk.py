@@ -25,6 +25,7 @@ mp_face_mesh = mp.solutions.face_mesh
 
 #inicialização de variaveis
 # create an event
+ordem = [] # ordem dos clicks
 record_check = Event() # Evento para checar se a thread principal deve começar a gravar os clicks (True = gravar; False = nao gravar )
 send_check = Event() # Evento para cheacar se a lista de comandos deve ser enviada 
 limite_pisc = 0.5 #tempo em segundos para considerr uma piscada como voluntária
@@ -39,6 +40,7 @@ vetor_olho_e =[] # vetor para armazenar a distância entre os pontos do olho esq
 
 
 def vosk():
+    keywords = []
     comando = False
     while True:
         data = stream.read(4096)
@@ -53,12 +55,15 @@ def vosk():
                 else:
                     if 'keyboard' in text:
                         comando = True
-                    if(text[14:19]=='start'):
+                    if(text.replace('"','').split()[3]=='start'):
                        #iniciar gravação de novo comando
                        record_check.set()
-                    if(text[14:18]=='stop'):
+                    if ((text.replace('"','').split()[3]=='stop') and record_check.is_set()):
+                       palavra = text.replace('"','').split()[4]
+                       print(palavra, "####")
                        #iniciar gravação de novo comando
                        send_check.set()
+
 
 
 def pontos(results):
@@ -129,14 +134,15 @@ with mp_face_mesh.FaceMesh(
     if results.multi_face_landmarks:
         
 
-        if record_check.is_set():
-           print("GRAVAR")
-           #começar a gravar os botoes
-           record_check.clear()
+
         if send_check.is_set():
-           print("SALVAR")
+           #print("SALVAR")
+           #print(ordem)
            #enviar dados gravados
            send_check.clear()
+           record_check.clear()
+           #apagando dados gravados
+           ordem = []
 
            
         pos = results.multi_face_landmarks[0].landmark[4]
@@ -197,9 +203,11 @@ with mp_face_mesh.FaceMesh(
            #print("FIM")
            
         if (fim_d-inicio_d)>limite_pisc and (pisc_controle_d == True):
+          if record_check.is_set():
+             ordem.append(('d',mouse.position))
           #print("PISCOU")
-          #mouse.press(Button.right)
-          #mouse.release(Button.right)
+          mouse.press(Button.right)
+          mouse.release(Button.right)
           pisc_controle_d = False
           
         if de<0.025:
@@ -223,10 +231,13 @@ with mp_face_mesh.FaceMesh(
            #print("FIM")
            
         if (fim_e-inicio_e)>limite_pisc and (pisc_controle_e == True):
-          #print("PISCOU")
-          #mouse.press(Button.left)
-          #mouse.release(Button.left)
-          pisc_controle_e = False
+         if record_check.is_set():
+            ordem.append(('e',mouse.position))
+            #começar a gravar os botoes
+            #print("PISCOU")
+            mouse.press(Button.left)
+            mouse.release(Button.left) 
+            pisc_controle_e = False
                  
           
       
