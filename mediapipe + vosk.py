@@ -86,25 +86,20 @@ def pontos(results):
    der4 = results.multi_face_landmarks[0].landmark[153].y - results.multi_face_landmarks[0].landmark[158].y
    der5 = results.multi_face_landmarks[0].landmark[154].y - results.multi_face_landmarks[0].landmark[157].y
 
-   der6 = results.multi_face_landmarks[0].landmark[163].y -  results.multi_face_landmarks[0].landmark[33].y
-   der7 = results.multi_face_landmarks[0].landmark[33].y  - results.multi_face_landmarks[0].landmark[161].y
-   der8 = results.multi_face_landmarks[0].landmark[154].y - results.multi_face_landmarks[0].landmark[133].y
-   der9 = results.multi_face_landmarks[0].landmark[133].y - results.multi_face_landmarks[0].landmark[157].y
+   der6 = results.multi_face_landmarks[0].landmark[163].y -  results.multi_face_landmarks[0].landmark[70].y
 
-   dd = der1 + der2 + der3 + der4 + der5
+   dd = der1 + der2 + der3 + der4 + der5 + der6
 
       ####################################### DISTANCIA ENTRE PONTOS DO OLHO ESQUERDO ###########################################
    def1 = results.multi_face_landmarks[0].landmark[381].y - results.multi_face_landmarks[0].landmark[384].y
    def2 = results.multi_face_landmarks[0].landmark[380].y - results.multi_face_landmarks[0].landmark[385].y
    def3 = results.multi_face_landmarks[0].landmark[374].y - results.multi_face_landmarks[0].landmark[386].y
    def4 = results.multi_face_landmarks[0].landmark[373].y - results.multi_face_landmarks[0].landmark[387].y
+   def5 = results.multi_face_landmarks[0].landmark[390].y - results.multi_face_landmarks[0].landmark[388].y
 
-   def5 = results.multi_face_landmarks[0].landmark[277].y - results.multi_face_landmarks[0].landmark[336].y
-   def6 = results.multi_face_landmarks[0].landmark[329].y - results.multi_face_landmarks[0].landmark[296].y
-   def7 = results.multi_face_landmarks[0].landmark[330].y - results.multi_face_landmarks[0].landmark[334].y
-   def8 = results.multi_face_landmarks[0].landmark[280].y - results.multi_face_landmarks[0].landmark[293].y
+   def6 = results.multi_face_landmarks[0].landmark[390].y - results.multi_face_landmarks[0].landmark[300].y
 
-   de = def1 + def2 + def3 + def4
+   de = def1 + def2 + def3 + def4 + def5 + def6
 
    return db, dd, de
 
@@ -148,6 +143,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
          db, dd, de = pontos(results)
 
 
+
          if db <0.19:
             #print("boca fechada")
             pos_0 = results.multi_face_landmarks[0].landmark[4]
@@ -181,7 +177,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
         
 
 
-         if dd<0.025:
+         if dd<0.07:
             #FECHADO
             pisc_d = True
          else:
@@ -209,7 +205,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
             mouse.release(Button.right)
             pisc_controle_d = False
           
-         if de<0.025:
+         if de<0.1:
             #FECHADO
             #print("piscou")
             pisc_e = True
