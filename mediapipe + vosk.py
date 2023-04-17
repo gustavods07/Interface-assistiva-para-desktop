@@ -9,7 +9,8 @@ from pynput.keyboard import Controller as keyboard_controller
 from threading import Thread, Event
 from queue import Queue
 
-model = Model(r"C:\Users\gusta\Documents\vosk\vosk-model-small-en-us-0.15")
+model = Model(r"C:\Users\usuario\Documents\vosk\vosk-model-small-en-us-0.15")
+#model = Model(r"C:\Users\gusta\Documents\vosk\vosk-model-small-en-us-0.15")
 recognizer = KaldiRecognizer(model, 16000)
 
 mic = pyaudio.PyAudio()
@@ -53,21 +54,22 @@ def vosk():
                keyboard.type(text[14:-3])
                comando = False
             else:
-               if 'keyboard' in text:
-                  comando = True
-               if(text.replace('"','').split()[3]=='start'):
-                  #iniciar gravação de novo comando
-                  record_check.set()
-               if ((text.replace('"','').split()[3]=='stop') and record_check.is_set()):
-                  palavra = text.replace('"','').split()[4]
-                  if palavra == '':
-                     palavra = 'none'
-                  global ordem
-                  keywords[palavra] = ordem
-                  ordem = []
-                  print(keywords)
-                  #iniciar gravação de novo comando
-                  send_check.set()
+              print(text)
+              if 'keyboard' in text:
+                comando = True
+              if(text.replace('"','').split()[3]=='start'):
+                #iniciar gravação de novo comando
+                record_check.set()
+              if ((text.replace('"','').split()[3]=='stop') and record_check.is_set()):
+                palavra = text.replace('"','').split()[4]
+                if palavra == '':
+                  palavra = 'none'
+                global ordem
+                keywords[palavra] = ordem
+                ordem = []
+                print(keywords)
+                #iniciar gravação de novo comando
+                send_check.set()
 
 
 
