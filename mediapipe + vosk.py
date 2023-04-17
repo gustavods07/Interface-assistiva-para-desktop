@@ -1,5 +1,7 @@
 import time
 import cv2
+import numpy as np
+from PIL import Image, ImageEnhance
 import mediapipe as mp
 import pyaudio
 from vosk import Model, KaldiRecognizer
@@ -49,12 +51,10 @@ def vosk():
       if recognizer.AcceptWaveform(data):
          text = recognizer.Result()
          if text != "":
-            if comando == True:
-               
-               keyboard.type(text[14:-3])
-               comando = False
+            if comando == True: 
+              keyboard.type(text[14:-3])
+              comando = False
             else:
-              print(text)
               if 'keyboard' in text:
                 comando = True
               if(text.replace('"','').split()[3]=='start'):
@@ -129,11 +129,18 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
       # pass by reference.
       image.flags.writeable = False
       image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-      results = face_mesh.process(image)
+      
+      im_pil = Image.fromarray(image)
+      enhancer = ImageEnhance.Contrast(im_pil)
+      factor = 1
+      im_output = enhancer.enhance(factor)
+      im_np = np.asarray(im_output)
+      
+      results = face_mesh.process(im_np)
 
       # Draw the face mesh annotations on the image.
-      image.flags.writeable = True
-      image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+      #image.flags.writeable = True
+      image = cv2.cvtColor(im_np, cv2.COLOR_RGB2BGR)
       if results.multi_face_landmarks:
         
          if send_check.is_set():
