@@ -31,7 +31,7 @@ mp_face_mesh = mp.solutions.face_mesh
 ordem = [] # ordem dos clicks
 record_check = Event() # Evento para checar se a thread principal deve começar a gravar os clicks (True = gravar; False = nao gravar )
 send_check = Event() # Evento para cheacar se a lista de comandos deve ser enviada 
-limite_pisc = 0.5 #tempo em segundos para considerr uma piscada como voluntária
+limite_pisc = 0.3 #tempo em segundos para considerr uma piscada como voluntária
 pisc_controle_d = False
 pisc_controle_e = False
 piscs_d = 5*[False] # vetor para armazenar os ultimos 3 estados de piscada do olho direito (para evitar que um erro de detecção seja reforçado)
@@ -82,31 +82,26 @@ def pontos(results):
    db = db1 + db2 + db3
 
       ####################################### DISTANCIA ENTRE PONTOS DO OLHO DIREITO ###########################################
-   der1 = results.multi_face_landmarks[0].landmark[163].y - results.multi_face_landmarks[0].landmark[161].y
-   der2 = results.multi_face_landmarks[0].landmark[144].y - results.multi_face_landmarks[0].landmark[160].y
-   der3 = results.multi_face_landmarks[0].landmark[145].y - results.multi_face_landmarks[0].landmark[159].y
-   der4 = results.multi_face_landmarks[0].landmark[153].y - results.multi_face_landmarks[0].landmark[158].y
-   der5 = results.multi_face_landmarks[0].landmark[154].y - results.multi_face_landmarks[0].landmark[157].y
 
-   der6 = results.multi_face_landmarks[0].landmark[163].y -  results.multi_face_landmarks[0].landmark[33].y
-   der7 = results.multi_face_landmarks[0].landmark[33].y  - results.multi_face_landmarks[0].landmark[161].y
-   der8 = results.multi_face_landmarks[0].landmark[154].y - results.multi_face_landmarks[0].landmark[133].y
-   der9 = results.multi_face_landmarks[0].landmark[133].y - results.multi_face_landmarks[0].landmark[157].y
-
-   dd = der1 + der2 + der3 + der4 + der5
+   dvd1 = results.multi_face_landmarks[0].landmark[144].y - results.multi_face_landmarks[0].landmark[160].y
+   dvd2 = results.multi_face_landmarks[0].landmark[153].y - results.multi_face_landmarks[0].landmark[158].y
+   #dvd3 = results.multi_face_landmarks[0].landmark[145].y - results.multi_face_landmarks[0].landmark[159].y
+   
+   
+   dhd = results.multi_face_landmarks[0].landmark[133].x - results.multi_face_landmarks[0].landmark[33].x
+   dd = 10000 * (dvd1 + dvd2) / 2*dhd
 
       ####################################### DISTANCIA ENTRE PONTOS DO OLHO ESQUERDO ###########################################
-   def1 = results.multi_face_landmarks[0].landmark[381].y - results.multi_face_landmarks[0].landmark[384].y
-   def2 = results.multi_face_landmarks[0].landmark[380].y - results.multi_face_landmarks[0].landmark[385].y
-   def3 = results.multi_face_landmarks[0].landmark[374].y - results.multi_face_landmarks[0].landmark[386].y
-   def4 = results.multi_face_landmarks[0].landmark[373].y - results.multi_face_landmarks[0].landmark[387].y
+   dve1 = results.multi_face_landmarks[0].landmark[380].y - results.multi_face_landmarks[0].landmark[385].y
+   dve2 = results.multi_face_landmarks[0].landmark[373].y - results.multi_face_landmarks[0].landmark[387].y
+   #dve3 = results.multi_face_landmarks[0].landmark[374].y - results.multi_face_landmarks[0].landmark[386].y
+   
+   
+   dhe = results.multi_face_landmarks[0].landmark[263].x - results.multi_face_landmarks[0].landmark[362].x
 
-   def5 = results.multi_face_landmarks[0].landmark[277].y - results.multi_face_landmarks[0].landmark[336].y
-   def6 = results.multi_face_landmarks[0].landmark[329].y - results.multi_face_landmarks[0].landmark[296].y
-   def7 = results.multi_face_landmarks[0].landmark[330].y - results.multi_face_landmarks[0].landmark[334].y
-   def8 = results.multi_face_landmarks[0].landmark[280].y - results.multi_face_landmarks[0].landmark[293].y
 
-   de = def1 + def2 + def3 + def4
+
+   de = 10000 *(dve1 + dve2) / 2*dhe
 
    return db, dd, de
 
@@ -155,6 +150,8 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
            
          pos = results.multi_face_landmarks[0].landmark[4]
          db, dd, de = pontos(results)
+         #print(dd)
+         print(de)
 
 
          if db <0.19:
@@ -190,7 +187,8 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
         
 
 
-         if dd<0.025:
+         #if dd<0.025:
+         if dd<3:
             #FECHADO
             pisc_d = True
          else:
@@ -214,11 +212,13 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
             if record_check.is_set():
                ordem.append(('d',mouse.position))
             #print("PISCOU")
+            #print("click direito")
             mouse.press(Button.right)
             mouse.release(Button.right)
             pisc_controle_d = False
           
-         if de<0.025:
+         #if de<0.025:
+         if de<3:
             #FECHADO
             #print("piscou")
             pisc_e = True
@@ -245,6 +245,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
                ordem.append(('e',mouse.position))
                #começar a gravar os botoes
                #print("PISCOU")
+            #print("click esquerdo")
             mouse.press(Button.left)
             mouse.release(Button.left) 
             pisc_controle_e = False
