@@ -11,8 +11,8 @@ from pynput.keyboard import Controller as keyboard_controller
 from threading import Thread, Event
 from queue import Queue
 
-model = Model(r"C:\Users\usuario\Documents\vosk\vosk-model-small-en-us-0.15")
-#model = Model(r"C:\Users\gusta\Documents\vosk\vosk-model-small-en-us-0.15")
+#model = Model(r"C:\Users\usuario\Documents\vosk\vosk-model-small-en-us-0.15")
+model = Model(r"C:\Users\gusta\Documents\vosk\vosk-model-small-en-us-0.15")
 recognizer = KaldiRecognizer(model, 16000)
 
 mic = pyaudio.PyAudio()
@@ -28,6 +28,7 @@ mp_face_mesh = mp.solutions.face_mesh
 
 #inicialização de variaveis
 # create an event
+exec = False # variavel para checar se algum comando de keyword está em execução
 ordem = [] # ordem dos clicks
 record_check = Event() # Evento para checar se a thread principal deve começar a gravar os clicks (True = gravar; False = nao gravar )
 send_check = Event() # Evento para cheacar se a lista de comandos deve ser enviada 
@@ -56,9 +57,17 @@ def executar(keywords):
          print("click esquerdo em:", coordenadas)
 
 def vosk():
+   global exec
    keywords = {}
    comando = False
    while True:
+      if (exec == True) and (index < index_max):
+         if (time.perf_counter() - inicio) > index:
+            print(keywords[keyw][index][1])
+            index = index + 1
+         if index == index_max:
+            exec = False
+
       data = stream.read(4096)
 
       if recognizer.AcceptWaveform(data):
@@ -70,7 +79,12 @@ def vosk():
             else:
                keyword = text.replace('"','').split()[3]
                if (not comando) and  keyword in keywords:
-                  executar(keywords[keyword])
+                  #executar(keywords[keyword])
+                  index = 0
+                  exec = True
+                  keyw = keyword
+                  index_max = len(keywords[keyword])
+                  inicio = time.perf_counter()
             
                if 'keyboard' in text:
                   comando = True
@@ -108,23 +122,23 @@ def pontos(results):
 
    dvd1 = results.multi_face_landmarks[0].landmark[144].y - results.multi_face_landmarks[0].landmark[160].y
    dvd2 = results.multi_face_landmarks[0].landmark[153].y - results.multi_face_landmarks[0].landmark[158].y
-   #dvd3 = results.multi_face_landmarks[0].landmark[145].y - results.multi_face_landmarks[0].landmark[159].y
+   dvd3 = results.multi_face_landmarks[0].landmark[145].y - results.multi_face_landmarks[0].landmark[159].y
    
    
    dhd = results.multi_face_landmarks[0].landmark[133].x - results.multi_face_landmarks[0].landmark[33].x
-   dd = 10000 * (dvd1 + dvd2) / 2*dhd
+   dd = 10000 * (dvd1 + dvd2 +dvd3) / 2*dhd
 
       ####################################### DISTANCIA ENTRE PONTOS DO OLHO ESQUERDO ###########################################
    dve1 = results.multi_face_landmarks[0].landmark[380].y - results.multi_face_landmarks[0].landmark[385].y
    dve2 = results.multi_face_landmarks[0].landmark[373].y - results.multi_face_landmarks[0].landmark[387].y
-   #dve3 = results.multi_face_landmarks[0].landmark[374].y - results.multi_face_landmarks[0].landmark[386].y
+   dve3 = results.multi_face_landmarks[0].landmark[374].y - results.multi_face_landmarks[0].landmark[386].y
    
    
    dhe = results.multi_face_landmarks[0].landmark[263].x - results.multi_face_landmarks[0].landmark[362].x
 
 
 
-   de = 10000 *(dve1 + dve2) / 2*dhe
+   de = 10000 *(dve1 + dve2 + dve3) / 2*dhe
 
    return db, dd, de
 
@@ -134,7 +148,6 @@ thread.start()
 # For webcam input:
 drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
 cap = cv2.VideoCapture(0)
-start_time = time.time()
 with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection_confidence=0.5, min_tracking_confidence=0.5) as face_mesh:
    while cap.isOpened():
       success, image = cap.read()
