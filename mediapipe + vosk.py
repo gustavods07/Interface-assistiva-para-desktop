@@ -41,6 +41,19 @@ vetor_olho_d = [] # vetor para armazenar a distância entre os pontos do olho di
 vetor_olho_e =[] # vetor para armazenar a distância entre os pontos do olho esquerdo para gerar threshold de piscadas
 #iniciaçização de funções
 
+def executar(keywords):
+   
+   for elemento in keywords:
+      coordenadas = elemento[1]
+      mouse.position = coordenadas
+      if elemento[0]=='d':
+         mouse.press(Button.left)
+         mouse.release(Button.left) 
+         print("click direito em: ", coordenadas)
+      else:
+         mouse.press(Button.left)
+         mouse.release(Button.left) 
+         print("click esquerdo em:", coordenadas)
 
 def vosk():
    keywords = {}
@@ -55,21 +68,31 @@ def vosk():
               keyboard.type(text[14:-3])
               comando = False
             else:
-              if 'keyboard' in text:
-                comando = True
-              if(text.replace('"','').split()[3]=='start'):
-                #iniciar gravação de novo comando
-                record_check.set()
-              if ((text.replace('"','').split()[3]=='stop') and record_check.is_set()):
-                palavra = text.replace('"','').split()[4]
-                if palavra == '':
-                  palavra = 'none'
-                global ordem
-                keywords[palavra] = ordem
-                ordem = []
-                print(keywords)
-                #iniciar gravação de novo comando
-                send_check.set()
+               keyword = text.replace('"','').split()[3]
+               if (not comando) and  keyword in keywords:
+                  executar(keywords[keyword])
+            
+               if 'keyboard' in text:
+                  comando = True
+                
+               if(keyword=='start'):
+                  #iniciar gravação de novo comando
+                  print("gravando")
+                  record_check.set()
+                
+               if ((keyword=='stop') and record_check.is_set()):
+                  palavra = text.replace('"','').split()[4]
+                  print("finalizado")
+                
+                  if palavra == '':
+                     palavra = 'none'
+                  
+                  global ordem
+                  keywords[palavra] = ordem
+                  ordem = []
+                  print(keywords)
+                  #iniciar gravação de novo comando
+                  send_check.set()
 
 
 
@@ -151,7 +174,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
          pos = results.multi_face_landmarks[0].landmark[4]
          db, dd, de = pontos(results)
          #print(dd)
-         print(de)
+         #print(de)
 
 
          if db <0.19:
