@@ -28,11 +28,13 @@ mp_face_mesh = mp.solutions.face_mesh
 
 #inicialização de variaveis
 # create an event
+di = False # indica se o olho direito iniciou uma piscada nova
+ei = False #indica se o olho esquerdo iniciou uma piscada nova
 exec = False # variavel para checar se algum comando de keyword está em execução
 ordem = [] # ordem dos clicks
 record_check = Event() # Evento para checar se a thread principal deve começar a gravar os clicks (True = gravar; False = nao gravar )
 send_check = Event() # Evento para cheacar se a lista de comandos deve ser enviada 
-limite_pisc = 0.3 #tempo em segundos para considerr uma piscada como voluntária
+limite_pisc = 0.25 #tempo em segundos para considerr uma piscada como voluntária
 pisc_controle_d = False
 pisc_controle_e = False
 piscs_d = 5*[False] # vetor para armazenar os ultimos 3 estados de piscada do olho direito (para evitar que um erro de detecção seja reforçado)
@@ -124,7 +126,7 @@ def pontos(results):
    db2 = results.multi_face_landmarks[0].landmark[317].y - results.multi_face_landmarks[0].landmark[268].y
    dbh = results.multi_face_landmarks[0].landmark[306].x - results.multi_face_landmarks[0].landmark[76].x
 
-   db = 100 *(db1 + db2 / 2*dbh)
+   db = 10 *(db1 + db2 / dbh)
 
       ####################################### DISTANCIA ENTRE PONTOS DO OLHO DIREITO ###########################################
 
@@ -198,7 +200,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
          #print(de)
          #print(de , "#######################" , dd)
 
-         if db <1:
+         if db <3:
             #print("boca fechada")
             pos_0 = results.multi_face_landmarks[0].landmark[4]
          else:
@@ -208,7 +210,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
                   par_y =  0.5 # parâmetro de deslocamento vertical
                else:
                   par_y = 1
-               print(par_y)
+               #print(par_y)
 
                if abs(pos.x -pos_0.x) <= 0.06:
                   par_x =  0.5 # parâmetro de deslocamento horizontal
@@ -234,39 +236,17 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
 
 
          #if dd<0.025:
-         if dd<1.5:
+         if dd<3.6:
             #FECHADO
-            print("fechado")
+            #print("fechado")
             pisc_d = True
          else:
             #ABERTO
-            print("aberto") 
+            #print("aberto") 
             pisc_d = False
 
-         for i in range(len(piscs_d)-1):
-            piscs_d[i] = piscs_d[i+1]
-            piscs_d[-1] = pisc_d
-
-         if piscs_d == [False,False,False,True,True]:
-            inicio_d = time.perf_counter()
-            pisc_controle_d = True
-            #print("INICIO")
-
-         if True in piscs_d:
-            fim_d = time.perf_counter()
-            #print("FIM")
-           
-         if (fim_d-inicio_d)>limite_pisc and (pisc_controle_d == True) and (dd < de):
-            if record_check.is_set():
-               ordem.append(('d',mouse.position))
-            #print("PISCOU")
-            #print("click direito")
-            mouse.press(Button.right)
-            mouse.release(Button.right)
-            pisc_controle_d = False
-          
          #if de<0.025:
-         if de<1.5:
+         if de<3.6:
             #FECHADO
             #print("piscou")
             pisc_e = True
@@ -274,29 +254,74 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
             #ABERTO
             pisc_e = False
 
+         if (pisc_d==True) and (pisc_e==True):
+            if dd< de:
+               pisc_e = False
+            else:
+               pisc_d = False
+         
+
+
+
+         for i in range(len(piscs_d)-1):
+            piscs_d[i] = piscs_d[i+1]
+            piscs_d[-1] = pisc_d
+
          for i in range(len(piscs_e)-1):
             piscs_e[i] = piscs_e[i+1]
             piscs_e[-1] = pisc_e
-         
-         #print(piscs_e)
-         if piscs_e == [False,False,False,True,True]:
+
+
+         if (piscs_d == [False,False,False,True,True]):
+            di = True
+            inicio_d = time.perf_counter()
+            pisc_controle_d = True
+            #print("INICIO direito")
+
+
+         if (piscs_e == [False,False,False,True,True]):
+            ei = True
             inicio_e = time.perf_counter()
             pisc_controle_e = True
-            #print("INICIO")
+            #print("INICIO esquerdo")
 
-         if True in piscs_e:
-            fim_e = time.perf_counter()
-            #print("FIM")
+         '''if True in piscs_d:
+            fim_d = time.perf_counter()
+            #print("FIM")'''
+         if piscs_d == [True,False,False,False,False]:
+            fim_d = time.perf_counter()
            
-         if (fim_e-inicio_e)>limite_pisc and (pisc_controle_e == True) and (de < dd): 
-            if record_check.is_set():
-               ordem.append(('e',mouse.position))
-               #começar a gravar os botoes
+         if piscs_e == [True,False,False,False,False]:
+            fim_e = time.perf_counter()
+         '''if True in piscs_e:
+            fim_e = time.perf_counter()
+            #print("FIM")'''
+
+
+
+         if 'fim_d' in locals():
+            if (fim_d-inicio_d)>limite_pisc and (pisc_controle_d == True):
+               if record_check.is_set():
+                  ordem.append(('d',mouse.position))
                #print("PISCOU")
-            #print("click esquerdo")
-            mouse.press(Button.left)
-            mouse.release(Button.left) 
-            pisc_controle_e = False
+               #print("click direito")
+               mouse.press(Button.right)
+               mouse.release(Button.right)
+               pisc_controle_d = False
+               print("DIREITO -", "INICIO: ",inicio_d," FIM: ", fim_d)
+           
+
+         if 'fim_e' in locals():
+            if (fim_e-inicio_e)>limite_pisc and (pisc_controle_e == True): 
+               if record_check.is_set():
+                  ordem.append(('e',mouse.position))
+                  #começar a gravar os botoes
+                  #print("PISCOU")
+               #print("click esquerdo")
+               mouse.press(Button.left)
+               mouse.release(Button.left) 
+               pisc_controle_e = False
+               print("ESQUERDO -", "INICIO: ",inicio_e," FIM: ", fim_e)
                  
           
       
