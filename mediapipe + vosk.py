@@ -296,11 +296,13 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
          '''if True in piscs_e:
             fim_e = time.perf_counter()
             #print("FIM")'''
+         
+         
 
 
 
          if 'fim_d' in locals():
-            if (fim_d-inicio_d)>limite_pisc and (pisc_controle_d == True):
+            if (fim_d-inicio_d)>limite_pisc and (pisc_controle_d == True) and (not ei):
                if record_check.is_set():
                   ordem.append(('d',mouse.position))
                #print("PISCOU")
@@ -312,7 +314,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
            
 
          if 'fim_e' in locals():
-            if (fim_e-inicio_e)>limite_pisc and (pisc_controle_e == True): 
+            if (fim_e-inicio_e)>limite_pisc and (pisc_controle_e == True) and (not di): 
                if record_check.is_set():
                   ordem.append(('e',mouse.position))
                   #começar a gravar os botoes
@@ -322,6 +324,11 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
                mouse.release(Button.left) 
                pisc_controle_e = False
                print("ESQUERDO -", "INICIO: ",inicio_e," FIM: ", fim_e)
+         
+         if (time.perf_counter()-inicio_e) > limite_pisc:
+            ei = False
+         if (time.perf_counter()-inicio_d) > limite_pisc:
+            di = False
                  
           
       
