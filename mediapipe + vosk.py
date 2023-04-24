@@ -63,7 +63,15 @@ def vosk():
    while True:
       if (exec == True) and (index < index_max):
          if (time.perf_counter() - inicio) > index:
-            print(keywords[keyw][index][1])
+            mouse.position = keywords[keyw][index][1]
+            if keywords[keyw][index][0] == 'd':
+               mouse.press(Button.right)
+               mouse.release(Button.right)
+            else:
+               mouse.press(Button.left)
+               mouse.release(Button.left)
+
+            
             index = index + 1
          if index == index_max:
             exec = False
@@ -112,33 +120,32 @@ def vosk():
 
 def pontos(results):
    #########################################   DISTANCIA ENTRE PONTOS DA BOCA   ##########################################
-   db1 = results.multi_face_landmarks[0].landmark[181].y - results.multi_face_landmarks[0].landmark[37].y
-   db2 = results.multi_face_landmarks[0].landmark[16].y - results.multi_face_landmarks[0].landmark[0].y
-   db3 = results.multi_face_landmarks[0].landmark[314].y - results.multi_face_landmarks[0].landmark[267].y
+   db1 = results.multi_face_landmarks[0].landmark[87].y - results.multi_face_landmarks[0].landmark[38].y
+   db2 = results.multi_face_landmarks[0].landmark[317].y - results.multi_face_landmarks[0].landmark[268].y
+   dbh = results.multi_face_landmarks[0].landmark[306].x - results.multi_face_landmarks[0].landmark[76].x
 
-   db = db1 + db2 + db3
+   db = 100 *(db1 + db2 / 2*dbh)
 
       ####################################### DISTANCIA ENTRE PONTOS DO OLHO DIREITO ###########################################
 
    dvd1 = results.multi_face_landmarks[0].landmark[144].y - results.multi_face_landmarks[0].landmark[160].y
    dvd2 = results.multi_face_landmarks[0].landmark[153].y - results.multi_face_landmarks[0].landmark[158].y
-   dvd3 = results.multi_face_landmarks[0].landmark[145].y - results.multi_face_landmarks[0].landmark[159].y
+
    
    
    dhd = results.multi_face_landmarks[0].landmark[133].x - results.multi_face_landmarks[0].landmark[33].x
-   dd = 10000 * (dvd1 + dvd2 +dvd3) / 2*dhd
+   dd = 10000 * (dvd1 + dvd2) / 2*dhd
 
       ####################################### DISTANCIA ENTRE PONTOS DO OLHO ESQUERDO ###########################################
    dve1 = results.multi_face_landmarks[0].landmark[380].y - results.multi_face_landmarks[0].landmark[385].y
    dve2 = results.multi_face_landmarks[0].landmark[373].y - results.multi_face_landmarks[0].landmark[387].y
-   dve3 = results.multi_face_landmarks[0].landmark[374].y - results.multi_face_landmarks[0].landmark[386].y
    
    
    dhe = results.multi_face_landmarks[0].landmark[263].x - results.multi_face_landmarks[0].landmark[362].x
 
 
 
-   de = 10000 *(dve1 + dve2 + dve3) / 2*dhe
+   de = 10000 *(dve1 + dve2) / 2*dhe
 
    return db, dd, de
 
@@ -186,49 +193,54 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
            
          pos = results.multi_face_landmarks[0].landmark[4]
          db, dd, de = pontos(results)
+         #print(db)
          #print(dd)
          #print(de)
+         #print(de , "#######################" , dd)
 
-
-         if db <0.19:
+         if db <1:
             #print("boca fechada")
             pos_0 = results.multi_face_landmarks[0].landmark[4]
          else:
-            #print("")
-            if abs(pos.y -pos_0.y) <= 0.06:
-               par_y =  0.5 # parâmetro de deslocamento vertical
-            else:
-               par_y = 1
+            if 'pos_0' in locals():
+               #print("boca aberta")
+               if abs(pos.y -pos_0.y) <= 0.06:
+                  par_y =  0.5 # parâmetro de deslocamento vertical
+               else:
+                  par_y = 1
+               print(par_y)
 
-            if abs(pos.x -pos_0.x) <= 0.06:
-               par_x =  0.5 # parâmetro de deslocamento horizontal
-            else:
-               par_x = 1
+               if abs(pos.x -pos_0.x) <= 0.06:
+                  par_x =  0.5 # parâmetro de deslocamento horizontal
+               else:
+                  par_x = 1
 
-            #print(abs(pos.x -pos_0.x))
-            if pos.x > pos_0.x + 0.05:
-               #esquerda
-               mouse.move(-8 * par_x, 0)  
-            elif pos.x < pos_0.x - 0.05: 
-               #direita
-               mouse.move(8 * par_x, 0)  
-            if pos.y > pos_0.y + 0.05:
-               #baixo")
-               mouse.move(0,8 * par_y) 
-            elif pos.y < pos_0.y - 0.05:
-               #cima
-               mouse.move(0,-8 *par_y)   
+               #print(abs(pos.x -pos_0.x))
+               if pos.x > pos_0.x + 0.05:
+                  #esquerda
+                  mouse.move(-8 * par_x, 0)  
+               elif pos.x < pos_0.x - 0.05: 
+                  #direita
+                  mouse.move(8 * par_x, 0)  
+               if pos.y > pos_0.y + 0.05:
+                  #baixo")
+                  mouse.move(0,8 * par_y) 
+               elif pos.y < pos_0.y - 0.05:
+                  #cima
+                  mouse.move(0,-8 *par_y)   
 
 
         
 
 
          #if dd<0.025:
-         if dd<3:
+         if dd<1.5:
             #FECHADO
+            print("fechado")
             pisc_d = True
          else:
             #ABERTO
+            print("aberto") 
             pisc_d = False
 
          for i in range(len(piscs_d)-1):
@@ -244,7 +256,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
             fim_d = time.perf_counter()
             #print("FIM")
            
-         if (fim_d-inicio_d)>limite_pisc and (pisc_controle_d == True):
+         if (fim_d-inicio_d)>limite_pisc and (pisc_controle_d == True) and (dd < de):
             if record_check.is_set():
                ordem.append(('d',mouse.position))
             #print("PISCOU")
@@ -254,7 +266,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
             pisc_controle_d = False
           
          #if de<0.025:
-         if de<3:
+         if de<1.5:
             #FECHADO
             #print("piscou")
             pisc_e = True
@@ -276,7 +288,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
             fim_e = time.perf_counter()
             #print("FIM")
            
-         if (fim_e-inicio_e)>limite_pisc and (pisc_controle_e == True):
+         if (fim_e-inicio_e)>limite_pisc and (pisc_controle_e == True) and (de < dd): 
             if record_check.is_set():
                ordem.append(('e',mouse.position))
                #começar a gravar os botoes
