@@ -124,7 +124,7 @@ def pontos(results):
    db2 = results.multi_face_landmarks[0].landmark[317].y - results.multi_face_landmarks[0].landmark[268].y
    dbh = results.multi_face_landmarks[0].landmark[306].x - results.multi_face_landmarks[0].landmark[76].x
 
-   db = 10 *(db1 + db2 / 2*dbh)
+   db = 100 *(db1 + db2 / 2*dbh)
 
       ####################################### DISTANCIA ENTRE PONTOS DO OLHO DIREITO ###########################################
 
@@ -208,7 +208,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
                   par_y =  0.5 # parâmetro de deslocamento vertical
                else:
                   par_y = 1
-               print(par_y)
+               #print(par_y)
 
                if abs(pos.x -pos_0.x) <= 0.06:
                   par_x =  0.5 # parâmetro de deslocamento horizontal
@@ -234,13 +234,13 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
 
 
          #if dd<0.025:
-         if dd<1.5:
+         if dd<3:
             #FECHADO
-            print("fechado")
+            #print("fechado")
             pisc_d = True
          else:
             #ABERTO
-            print("aberto") 
+            #print("aberto") 
             pisc_d = False
 
          for i in range(len(piscs_d)-1):
@@ -266,7 +266,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
             pisc_controle_d = False
           
          #if de<0.025:
-         if de<1.5:
+         if de<3:
             #FECHADO
             #print("piscou")
             pisc_e = True
