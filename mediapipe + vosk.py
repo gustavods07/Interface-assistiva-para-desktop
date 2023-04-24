@@ -124,7 +124,7 @@ def pontos(results):
    db2 = results.multi_face_landmarks[0].landmark[317].y - results.multi_face_landmarks[0].landmark[268].y
    dbh = results.multi_face_landmarks[0].landmark[306].x - results.multi_face_landmarks[0].landmark[76].x
 
-   db = 100 *(db1 + db2 / 2*dbh)
+   db = 10 *(db1 + db2 / 2*dbh)
 
       ####################################### DISTANCIA ENTRE PONTOS DO OLHO DIREITO ###########################################
 
