@@ -192,16 +192,19 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
 
            
          pos = results.multi_face_landmarks[0].landmark[4]
+         angle_control = results.multi_face_landmarks[0].landmark[152].z
          db, dd, de = pontos(results)
          #print(db)
          #print(dd)
          #print(de)
-         #print(de , "#######################" , dd)
+         print(de , "#######################" , dd)
 
          if db <1:
             #print("boca fechada")
+            b = False
             pos_0 = results.multi_face_landmarks[0].landmark[4]
          else:
+            b = True
             if 'pos_0' in locals():
                #print("boca aberta")
                if abs(pos.y -pos_0.y) <= 0.06:
@@ -216,16 +219,16 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
                   par_x = 1
 
                #print(abs(pos.x -pos_0.x))
-               if pos.x > pos_0.x + 0.05:
+               if pos.x > pos_0.x + 0.03:
                   #esquerda
                   mouse.move(-8 * par_x, 0)  
-               elif pos.x < pos_0.x - 0.05: 
+               elif pos.x < pos_0.x - 0.03: 
                   #direita
                   mouse.move(8 * par_x, 0)  
-               if pos.y > pos_0.y + 0.05:
+               if pos.y > pos_0.y + 0.02:
                   #baixo")
                   mouse.move(0,8 * par_y) 
-               elif pos.y < pos_0.y - 0.05:
+               elif pos.y < pos_0.y - 0.02:
                   #cima
                   mouse.move(0,-8 *par_y)   
 
@@ -234,7 +237,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
 
 
          #if dd<0.025:
-         if dd<3:
+         if dd<3 and (not b):
             #FECHADO
             #print("fechado")
             pisc_d = True
@@ -260,13 +263,13 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
             if record_check.is_set():
                ordem.append(('d',mouse.position))
             #print("PISCOU")
-            #print("click direito")
+            print("click direito")
             mouse.press(Button.right)
             mouse.release(Button.right)
             pisc_controle_d = False
           
          #if de<0.025:
-         if de<3:
+         if de<3 and (not b):
             #FECHADO
             #print("piscou")
             pisc_e = True
@@ -293,7 +296,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
                ordem.append(('e',mouse.position))
                #começar a gravar os botoes
                #print("PISCOU")
-            #print("click esquerdo")
+            print("click esquerdo")
             mouse.press(Button.left)
             mouse.release(Button.left) 
             pisc_controle_e = False
