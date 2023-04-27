@@ -207,22 +207,30 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
             b = True
             if 'pos_0' in locals():
                #print("boca aberta")
-               if abs(pos.y -pos_0.y) <= 0.12:
-                  par_y =  0.5 # parâmetro de deslocamento vertical
+               if abs(pos.y -pos_0.y) <= 0.05:
+                  par_y =  0.2 # parâmetro de deslocamento vertical
+               elif abs(pos.y -pos_0.y)<= 0.08:
+                  par_y = 0.4
+               elif abs(pos.y -pos_0.y)<= 0.12:
+                  par_y = 0.8
                else:
                   par_y = 1
                #print(par_y)
 
-               if abs(pos.x -pos_0.x) <= 0.12:
+               if abs(pos.x -pos_0.x) <= 0.05:
                   par_x =  0.5 # parâmetro de deslocamento horizontal
-               else:
+               elif abs(pos.x -pos_0.x)<= 0.08:
+                  par_x = 0.75
+               elif abs(pos.x -pos_0.x)<= 0.12:
                   par_x = 1
+               else:
+                  par_x = 1.2
 
                #print(abs(pos.x -pos_0.x))
-               if pos.x > pos_0.x + 0.03:
+               if pos.x > pos_0.x + 0.02:
                   #esquerda
                   mouse.move(-8 * par_x, 0)  
-               elif pos.x < pos_0.x - 0.03: 
+               elif pos.x < pos_0.x - 0.02: 
                   #direita
                   mouse.move(8 * par_x, 0)  
                if pos.y > pos_0.y + 0.02:
