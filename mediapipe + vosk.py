@@ -197,7 +197,7 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
          #print(db)
          #print(dd)
          #print(de)
-         print(de , "#######################" , dd)
+         #print(de , "#######################" , dd)
 
          if db <1:
             #print("boca fechada")
@@ -207,13 +207,13 @@ with mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True, min_detection
             b = True
             if 'pos_0' in locals():
                #print("boca aberta")
-               if abs(pos.y -pos_0.y) <= 0.06:
+               if abs(pos.y -pos_0.y) <= 0.12:
                   par_y =  0.5 # parâmetro de deslocamento vertical
                else:
                   par_y = 1
                #print(par_y)
 
-               if abs(pos.x -pos_0.x) <= 0.06:
+               if abs(pos.x -pos_0.x) <= 0.12:
                   par_x =  0.5 # parâmetro de deslocamento horizontal
                else:
                   par_x = 1
