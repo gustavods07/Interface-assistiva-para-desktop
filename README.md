@@ -30,6 +30,6 @@ Após pronunciar a palavra-comando _'start'_, as coordenadas doss próximos clic
 Cabe destacar que a palavra-comando _'stop'_ deve ser utiolizada em conjunto com uma nova palavra-comando escolhida pelo usuário e que será vinculada à sequência de clicks armazenada.
 Dessa forma, ao pronunciar a nova palavra-comando, a sequência de clicks será automaticamente executada, facilitanto a execução de tarefas que são realizadas com frequência.
 
-- Os comando _'start'_ e _'stop'_ só são executado caso seja pronunciado isoladamente (não sendo parte de uma sentença maior).
+- Os comando _'start'_ e _'stop + palavra-comando'_ só são executado caso sejam pronunciados isoladamente (não sendo parte de uma sentença maior).
 
 
