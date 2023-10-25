@@ -10,7 +10,17 @@ O script monitora:
 
 # Movimentação do cursor
 
-A movimentação do cursor baseia-se na abertura da boca como ação-gatilho. Dessa forma, ao abrir a boca e girar o rosto parcialmente (para qualquer dos lados ou para cima), o cursor se movimenta pela tela.
+A movimentação do cursor baseia-se na abertura da boca como ação-gatilho. Dessa forma, ao abrir a boca e girar o rosto parcialmente (para qualquer dos lados ou para cima), o cursor se movimenta pela tela. Quanto maior on ângulo do giro facial, maior a valocidade do cursor.
+
+
+# Clicks
+
+Os clicks são computados através de piscadas. há um limite temporal (duração de piscadas intencionais deve ser superior a 0.3 segundos) para  diferenciar piscadas involuntárias de piscadas intencionais. Os clicks podem ser descritos da seguinte forma:
+- piscar o olho direito é interpretado como click com o botão direito de um mouse;
+- piscar o olho esquerdo é interpretado como click com o botão esquerdo de um mouse.
+
+# Transcrição de áudio para digitação
+
 
 
 
