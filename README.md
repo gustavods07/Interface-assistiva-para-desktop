@@ -21,6 +21,15 @@ Os clicks são computados através de piscadas. há um limite temporal (duraçã
 
 # Transcrição de áudio para digitação
 
+Infelizmente, a biblioteca de transcrição de audio _Vosk_ carece de uma opção com boa acurácia em português (especialmente para transcrição em tempo real). Como alternativa, o sistema proposto trnascreve em tempo real qualquer vocábulo em inglês. Ao pronunciar a palavra-comando _'keyboard'_ inicia-se a transcrição/digitação para a proxima sentença falada em inglês.
+- O comando _'keyboard'_ só é executado caso seja pronunciado isoladamente (não sendo parte de uma sentença maior).
 
+# Transcrição de áudio para automatização e rotinas
+
+Após pronunciar a palavra-comando _'start'_, as coordenadas doss próximos clicks são armazenadas até que a  palavra-comando _'stop'_ seja pronunciada.
+Cabe destacar que a palavra-comando _'stop'_ deve ser utiolizada em conjunto com uma nova palavra-comando escolhida pelo usuário e que será vinculada à sequência de clicks armazenada.
+Dessa forma, ao pronunciar a nova palavra-comando, a sequência de clicks será automaticamente executada, facilitanto a execução de tarefas que são realizadas com frequência.
+
+- Os comando _'start'_ e _'stop'_ só são executado caso seja pronunciado isoladamente (não sendo parte de uma sentença maior).
 
 
